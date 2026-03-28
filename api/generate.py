@@ -93,26 +93,26 @@ class handler(BaseHTTPRequestHandler):
     
     def get_optimal_font_size(self, width, height, text_length):
         """Calculate optimal font size based on image dimensions and text length"""
-        # Base font size calculation - much more aggressive for viral impact
-        base_size = min(width, height) // 6  # Increased from 1/8 to 1/6 for larger text
+        # More conservative base font size calculation
+        base_size = min(width, height) // 12  # Much more conservative: 1080px -> 90px base
         
-        # Adjust for text length (shorter text = bigger font)
+        # Adjust for text length (shorter text = bigger font, but more moderate)
         if text_length < 20:
-            multiplier = 2.0  # Much bigger for short text
+            multiplier = 1.4  # Reduced from 2.0
         elif text_length < 40:
-            multiplier = 1.6
+            multiplier = 1.2  # Reduced from 1.6
         elif text_length < 80:
-            multiplier = 1.2
-        elif text_length < 120:
             multiplier = 1.0
-        else:
+        elif text_length < 120:
             multiplier = 0.8
+        else:
+            multiplier = 0.6
             
         optimal_size = int(base_size * multiplier)
         
-        # Ensure minimum readable size for viral content - more aggressive
-        min_size = width // 15  # Increased minimum size
-        max_size = width // 3   # Increased maximum size
+        # More reasonable size limits
+        min_size = width // 25  # Smaller minimum: 1080px -> 43px
+        max_size = width // 8   # Smaller maximum: 1080px -> 135px
         
         final_size = max(min_size, min(optimal_size, max_size))
         

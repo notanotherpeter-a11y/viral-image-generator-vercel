@@ -101,7 +101,7 @@ class handler(BaseHTTPRequestHandler):
         
         # Try to use a better font, fallback to default
         try:
-            font_size = min(width, height) // 15
+            font_size = min(width, height) // 8  # Much larger font for social media impact!
             font = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", font_size)
         except:
             font = ImageFont.load_default()
@@ -123,8 +123,8 @@ class handler(BaseHTTPRequestHandler):
         if current_line:
             lines.append(' '.join(current_line))
         
-        # Calculate text position
-        line_height = font_size + 10
+        # Calculate text position with better spacing
+        line_height = font_size + 20  # More line spacing for readability
         total_height = len(lines) * line_height
         start_y = (height - total_height) // 2
         

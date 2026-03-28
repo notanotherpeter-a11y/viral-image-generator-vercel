@@ -101,10 +101,12 @@ class handler(BaseHTTPRequestHandler):
         
         # Try to use a better font, fallback to default
         try:
-            font_size = min(width, height) // 6  # MASSIVE font for viral social media impact!
+            font_size = min(width, height) // 4  # EXTREME font for maximum viral impact!
+            print(f"DEBUG: Font size calculated: {font_size}px for {width}x{height} image")
             font = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", font_size)
-        except:
-            font_size = 80  # Large fallback if system font fails
+        except Exception as e:
+            font_size = 120  # Much larger fallback
+            print(f"DEBUG: Using fallback font size: {font_size}px (error: {e})")
             font = ImageFont.load_default()
         
         # Add text with word wrapping

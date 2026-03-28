@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎨 Image Generator Studio</title>
+    <title>✨ Viral Image Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -11,424 +12,503 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --bg-secondary: #f7fafc;
+            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 25px 50px rgba(0, 0, 0, 0.15);
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .container {
-            max-width: 1200px;
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .app-container {
+            max-width: 1400px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .app-header {
+            background: var(--accent-gradient);
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
             overflow: hidden;
         }
 
-        .header {
-            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+        .app-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
+        }
+
+        .app-header h1 {
+            font-size: 3.5em;
+            font-weight: 700;
             color: white;
-            text-align: center;
-            padding: 30px;
+            margin-bottom: 12px;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            letter-spacing: -2px;
+            position: relative;
+            z-index: 1;
         }
 
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        .app-header p {
+            font-size: 1.3em;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
         }
 
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-
-        .main-content {
+        .main-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            padding: 30px;
+            grid-template-columns: minmax(400px, 1fr) 1fr;
+            min-height: 600px;
         }
 
-        .left-panel {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
+        .controls-panel {
+            background: white;
+            padding: 40px;
+            border-right: 1px solid #e2e8f0;
         }
 
-        .right-panel {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
+        .preview-panel {
+            background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
 
-        .form-group {
+        .section-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .control-group {
+            margin-bottom: 32px;
+        }
+
+        .control-label {
+            font-size: 0.95em;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
             margin-bottom: 20px;
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #555;
+        .toggle-btn {
+            flex: 1;
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: var(--text-secondary);
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
 
-        .form-group select,
-        .form-group textarea,
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e6ed;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
+        .toggle-btn:hover {
+            border-color: #cbd5e0;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
         }
 
-        .form-group select:focus,
-        .form-group textarea:focus,
-        .form-group input:focus {
-            outline: none;
-            border-color: #4ecdc4;
-        }
-
-        .form-group textarea {
-            height: 120px;
-            resize: vertical;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+        .toggle-btn.active {
+            background: var(--success-gradient);
+            border-color: transparent;
             color: white;
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-size: 0.95em;
+            font-weight: 500;
+            background: white;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition);
+            appearance: none;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 20px;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .custom-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-size: 0.95em;
+            font-weight: 400;
+            background: white;
+            color: var(--text-primary);
+            transition: var(--transition);
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        .custom-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 20px 30px;
+            background: var(--accent-gradient);
             border: none;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-size: 16px;
+            border-radius: var(--border-radius);
+            color: white;
+            font-size: 1.1em;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
         }
 
-        .btn:hover {
+        .generate-btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            box-shadow: var(--shadow-lg);
         }
 
-        .btn:disabled {
-            opacity: 0.6;
+        .generate-btn:disabled {
+            opacity: 0.7;
             cursor: not-allowed;
             transform: none;
         }
 
-        .content-types {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
         }
 
-        .content-type {
-            padding: 15px;
-            border: 2px solid #e0e6ed;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .content-type:hover {
-            border-color: #4ecdc4;
-            background: #f0fdfc;
-        }
-
-        .content-type.active {
-            border-color: #4ecdc4;
-            background: #4ecdc4;
-            color: white;
-        }
-
-        .content-type h3 {
-            margin-bottom: 5px;
-            font-size: 16px;
-        }
-
-        .content-type p {
-            font-size: 12px;
-            opacity: 0.7;
+        .generate-btn:hover::before {
+            left: 100%;
         }
 
         .preview-area {
-            border: 3px dashed #e0e6ed;
-            border-radius: 15px;
-            padding: 30px;
-            min-height: 300px;
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 1;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
             display: flex;
             align-items: center;
             justify-content: center;
-            background: white;
-            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 24px;
         }
 
         .preview-placeholder {
-            color: #999;
-            font-size: 18px;
             text-align: center;
+            color: var(--text-secondary);
+            padding: 40px;
+        }
+
+        .preview-placeholder h3 {
+            font-size: 1.3em;
+            margin-bottom: 12px;
+            color: var(--text-primary);
         }
 
         .preview-image {
-            max-width: 100%;
-            max-height: 400px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--border-radius);
         }
 
-        .download-section {
-            margin-top: 20px;
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .action-btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.95em;
         }
 
         .download-btn {
-            background: linear-gradient(135deg, #56ab2f, #a8e6cf);
-            margin-right: 10px;
+            background: var(--success-gradient);
+            color: white;
+            box-shadow: var(--shadow-sm);
         }
 
-        .quick-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 20px;
+        .download-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
 
-        .quick-btn {
-            padding: 10px 15px;
-            font-size: 14px;
-            border-radius: 20px;
-            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+        .secondary-btn {
+            background: white;
+            color: var(--text-primary);
+            border: 2px solid #e2e8f0;
+        }
+
+        .secondary-btn:hover {
+            border-color: #cbd5e0;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
         }
 
         .status-message {
-            padding: 15px;
-            border-radius: 10px;
+            padding: 16px 20px;
+            border-radius: var(--border-radius);
             margin-bottom: 20px;
-            display: none;
+            font-weight: 500;
+            animation: slideIn 0.3s ease-out;
         }
 
-        .status-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .status-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .status-loading {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #b6d4db;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            color: white;
         }
 
-        .examples-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
+        .status-success {
+            background: linear-gradient(135deg, #34d399, #10b981);
+            color: white;
         }
 
-        .example-card {
-            border: 2px solid #e0e6ed;
-            border-radius: 10px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .example-card:hover {
-            border-color: #4ecdc4;
-            background: #f0fdfc;
-        }
-
-        .example-card h4 {
-            margin-bottom: 8px;
-            color: #333;
-        }
-
-        .example-card p {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .example-card .example-text {
-            font-style: italic;
-            color: #999;
-            font-size: 12px;
+        .status-error {
+            background: linear-gradient(135deg, #f87171, #ef4444);
+            color: white;
         }
 
         @media (max-width: 768px) {
-            .main-content {
+            .main-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .content-types {
-                grid-template-columns: 1fr;
+
+            .controls-panel,
+            .preview-panel {
+                padding: 24px;
             }
-            
-            .quick-actions {
-                grid-template-columns: 1fr;
+
+            .app-header h1 {
+                font-size: 2.5em;
             }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .preview-area {
+                max-width: 100%;
+            }
+        }
+
+        .feature-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🎨 Image Generator Studio</h1>
-            <p>Create viral content, branded graphics, and social media images instantly</p>
-        </div>
-        
-        <div class="main-content">
-            <!-- Left Panel - Controls -->
-            <div class="left-panel">
-                <h2>🎯 Content Generator</h2>
-                
-                <div id="statusMessage" class="status-message"></div>
-                
-                <!-- Content Type Selection -->
-                <div class="form-group">
-                    <label>📋 Content Type</label>
-                    <div class="content-types">
-                        <div class="content-type" data-type="viral" onclick="selectContentType('viral')">
-                            <h3>🔥 Viral Content</h3>
-                            <p>Hugot, riddles, trending</p>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="feature-badge">AI Powered</div>
+            <h1>✨ Viral Image Studio</h1>
+            <p>Create stunning viral content for social media in seconds</p>
+        </header>
+
+        <div class="main-grid">
+            <div class="controls-panel">
+                <div class="section-title">
+                    🎯 Content Generator
+                </div>
+
+                <div id="statusMessage" class="status-message" style="display: none;"></div>
+
+                <div class="control-group">
+                    <label class="control-label">📋 Content Type</label>
+                    <div class="button-group">
+                        <div class="toggle-btn active" data-type="viral">
+                            <span>🔥 Viral Content</span><br>
+                            <small>Hugot, riddles, trending</small>
                         </div>
-                        <div class="content-type" data-type="generic" onclick="selectContentType('generic')">
-                            <h3>🏷️ Branded Content</h3>
-                            <p>Custom brand graphics</p>
+                        <div class="toggle-btn" data-type="branded">
+                            <span>🏷️ Branded Content</span><br>
+                            <small>Custom brand graphics</small>
                         </div>
                     </div>
                 </div>
 
-                <!-- Viral Content Options -->
-                <div id="viralOptions" style="display: none;">
-                    <div class="form-group">
-                        <label>🔥 Viral Type</label>
-                        <select id="viralType">
-                            <option value="hugot_tagalog">💔 Hugot Tagalog</option>
-                            <option value="hugot_english">💔 Hugot English</option>
-                            <option value="riddle">🧩 Riddles</option>
-                            <option value="word_puzzle">🔤 Word Puzzles</option>
-                            <option value="trending">📈 Trending Topics</option>
-                            <option value="motivation">💪 Motivation</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Generic Content Options -->
-                <div id="genericOptions" style="display: none;">
-                    <div class="form-group">
-                        <label>🎨 Brand</label>
-                        <select id="brandType">
-                            <option value="boostprompt">🚀 BoostPrompt</option>
-                            <option value="syntyx">🤖 Syntyx Labs</option>
-                            <option value="personal">✨ Gene Carlo</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>🎭 Template</label>
-                        <select id="templateType">
-                            <option value="clean">✨ Clean (Minimal)</option>
-                            <option value="boxed">📦 Boxed (Professional)</option>
-                            <option value="bold">🔥 Bold (Promotional)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>📝 Your Text</label>
-                        <textarea id="customText" placeholder="Enter your content here..."></textarea>
-                    </div>
-                </div>
-
-                <!-- Format Selection -->
-                <div class="form-group">
-                    <label>📱 Format</label>
-                    <select id="formatType">
-                        <option value="instagram_post">📷 Instagram Post (1080×1080)</option>
-                        <option value="facebook_post">📘 Facebook Post (1200×630)</option>
-                        <option value="facebook_story">📱 Facebook Story (1080×1920)</option>
-                        <option value="tiktok_post">🎵 TikTok Post (1080×1080)</option>
-                        <option value="linkedin_post">💼 LinkedIn Post (1200×627)</option>
-                        <option value="twitter_post">🐦 Twitter Post (1200×675)</option>
+                <div id="viralOptions" class="control-group">
+                    <label class="control-label">🔥 Viral Type</label>
+                    <select id="viralType" class="form-select">
+                        <option value="hugot_tagalog">💔 Hugot Tagalog</option>
+                        <option value="hugot_english">💔 Hugot English</option>
+                        <option value="motivation">💪 Motivation</option>
                     </select>
                 </div>
 
-                <!-- Generate Button -->
-                <button id="generateBtn" class="btn" onclick="generateImage()">
+                <div id="brandedOptions" class="control-group" style="display: none;">
+                    <label class="control-label">✏️ Custom Text</label>
+                    <textarea id="customText" class="custom-input" placeholder="Enter your custom message here..."></textarea>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">📱 Format</label>
+                    <select id="formatType" class="form-select">
+                        <option value="instagram_post">📸 Instagram Post (1080×1080)</option>
+                        <option value="facebook_post">📘 Facebook Post (1200×630)</option>
+                        <option value="twitter_post">🐦 Twitter Post (1024×512)</option>
+                    </select>
+                </div>
+
+                <button id="generateBtn" class="generate-btn">
                     ✨ Generate Image
                 </button>
-
-                <!-- Quick Actions -->
-                <div class="quick-actions">
-                    <button class="btn quick-btn" onclick="generateRandom()">🎲 Random Content</button>
-                    <button class="btn quick-btn" onclick="showExamples()">💡 Show Examples</button>
-                </div>
             </div>
 
-            <!-- Right Panel - Preview -->
-            <div class="right-panel">
-                <h2>🖼️ Preview</h2>
-                
+            <div class="preview-panel">
+                <div class="section-title">
+                    🖼️ Preview
+                </div>
+
                 <div id="previewArea" class="preview-area">
                     <div class="preview-placeholder">
-                        <p>🎨 Your generated image will appear here</p>
-                        <p style="margin-top: 10px; font-size: 14px;">Select a content type and click generate!</p>
+                        <h3>🎨 Your generated image will appear here</h3>
+                        <p>Select a content type and click generate!</p>
                     </div>
                 </div>
 
-                <div id="downloadSection" class="download-section" style="display: none;">
-                    <button class="btn download-btn" onclick="downloadImage()">
+                <div id="downloadSection" class="action-buttons" style="display: none;">
+                    <button id="downloadBtn" class="action-btn download-btn">
                         💾 Download Image
                     </button>
-                    <button class="btn quick-btn" onclick="generateAnother()">
+                    <button id="generateAnother" class="action-btn secondary-btn">
                         🔄 Generate Another
                     </button>
-                </div>
-
-                <!-- Examples -->
-                <div id="examplesSection" style="display: none;">
-                    <h3>💡 Quick Examples</h3>
-                    <div class="examples-grid">
-                        <div class="example-card" onclick="loadExample('hugot')">
-                            <h4>💔 Hugot Quote</h4>
-                            <p>Emotional Filipino content</p>
-                            <div class="example-text">"Ang hirap magmahal ng taong hindi ka mamahalin"</div>
-                        </div>
-                        
-                        <div class="example-card" onclick="loadExample('riddle')">
-                            <h4>🧩 Brain Teaser</h4>
-                            <p>Interactive puzzle content</p>
-                            <div class="example-text">"I have keys but no locks. What am I?"</div>
-                        </div>
-                        
-                        <div class="example-card" onclick="loadExample('motivation')">
-                            <h4>💪 Motivation</h4>
-                            <p>Inspirational quotes</p>
-                            <div class="example-text">"Your only limit is your mind"</div>
-                        </div>
-                        
-                        <div class="example-card" onclick="loadExample('custom')">
-                            <h4>🏷️ Custom Brand</h4>
-                            <p>Branded business content</p>
-                            <div class="example-text">"AI is transforming business"</div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -438,11 +518,25 @@
         let selectedContentType = 'viral';
         let currentImagePath = null;
 
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            showStatus('🚀 Viral Image Studio loaded and ready!', 'success');
+            setTimeout(() => hideStatus(), 3000);
+        });
+
+        // Content type switching
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const type = this.dataset.type;
+                selectContentType(type);
+            });
+        });
+
         function selectContentType(type) {
             selectedContentType = type;
             
             // Update UI
-            document.querySelectorAll('.content-type').forEach(el => {
+            document.querySelectorAll('.toggle-btn').forEach(el => {
                 el.classList.remove('active');
             });
             document.querySelector(`[data-type="${type}"]`).classList.add('active');
@@ -450,14 +544,19 @@
             // Show/hide options
             if (type === 'viral') {
                 document.getElementById('viralOptions').style.display = 'block';
-                document.getElementById('genericOptions').style.display = 'none';
+                document.getElementById('brandedOptions').style.display = 'none';
             } else {
                 document.getElementById('viralOptions').style.display = 'none';
-                document.getElementById('genericOptions').style.display = 'block';
+                document.getElementById('brandedOptions').style.display = 'block';
             }
             
-            hideExamples();
+            hidePreview();
         }
+
+        // Generate button
+        document.getElementById('generateBtn').addEventListener('click', generateImage);
+        document.getElementById('generateAnother').addEventListener('click', generateImage);
+        document.getElementById('downloadBtn').addEventListener('click', downloadImage);
 
         function showStatus(message, type = 'loading') {
             const statusEl = document.getElementById('statusMessage');
@@ -467,32 +566,33 @@
             
             if (type !== 'loading') {
                 setTimeout(() => {
-                    statusEl.style.display = 'none';
+                    hideStatus();
                 }, 5000);
             }
         }
 
         function hideStatus() {
-            document.getElementById('statusMessage').style.display = 'none';
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.style.display = 'none';
         }
 
         async function generateImage() {
             const generateBtn = document.getElementById('generateBtn');
             generateBtn.disabled = true;
-            generateBtn.textContent = '⏳ Generating...';
+            generateBtn.innerHTML = '<span class="loading-spinner"></span>Creating your masterpiece...';
             
-            showStatus('🎨 Creating your image...', 'loading');
+            showStatus('🎨 Creating your viral image...', 'loading');
             hidePreview();
 
             try {
                 let response;
                 
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000);
+                
                 if (selectedContentType === 'viral') {
                     const viralType = document.getElementById('viralType').value;
                     const format = document.getElementById('formatType').value;
-                    
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 30000);
                     
                     response = await fetch('/api/generate', {
                         method: 'POST',
@@ -505,18 +605,12 @@
                         }),
                         signal: controller.signal
                     });
-                    
-                    clearTimeout(timeoutId);
                 } else {
-                    const brand = document.getElementById('brandType').value;
-                    const template = document.getElementById('templateType').value;
-                    const format = document.getElementById('formatType').value;
                     const text = document.getElementById('customText').value;
+                    const format = document.getElementById('formatType').value;
                     
                     if (!text.trim()) {
                         showStatus('❌ Please enter some text for your image', 'error');
-                        generateBtn.disabled = false;
-                        generateBtn.textContent = '✨ Generate Image';
                         return;
                     }
                     
@@ -528,13 +622,14 @@
                         body: JSON.stringify({
                             type: 'custom',
                             text: text,
-                            brand: brand,
-                            template: template,
                             format: format
-                        })
+                        }),
+                        signal: controller.signal
                     });
                 }
-
+                
+                clearTimeout(timeoutId);
+                
                 console.log('Response status:', response.status);
                 console.log('Response ok:', response.ok);
                 
@@ -576,7 +671,7 @@
                 showStatus(`❌ ${errorMessage}`, 'error');
             } finally {
                 generateBtn.disabled = false;
-                generateBtn.textContent = '✨ Generate Image';
+                generateBtn.innerHTML = '✨ Generate Image';
             }
         }
 
@@ -584,15 +679,15 @@
             currentImagePath = imagePath;
             const previewArea = document.getElementById('previewArea');
             previewArea.innerHTML = `<img src="${imagePath}" class="preview-image" alt="Generated Image">`;
-            document.getElementById('downloadSection').style.display = 'block';
+            document.getElementById('downloadSection').style.display = 'flex';
         }
 
         function hidePreview() {
             const previewArea = document.getElementById('previewArea');
             previewArea.innerHTML = `
                 <div class="preview-placeholder">
-                    <p>🎨 Your generated image will appear here</p>
-                    <p style="margin-top: 10px; font-size: 14px;">Select a content type and click generate!</p>
+                    <h3>🎨 Your generated image will appear here</h3>
+                    <p>Select a content type and click generate!</p>
                 </div>
             `;
             document.getElementById('downloadSection').style.display = 'none';
@@ -608,168 +703,6 @@
                 showStatus('💾 Download started!', 'success');
             }
         }
-
-        function generateAnother() {
-            generateImage();
-        }
-
-        async function generateRandom() {
-            // Randomly select viral content
-            selectContentType('viral');
-            const viralTypes = ['hugot_tagalog', 'hugot_english', 'riddle', 'word_puzzle', 'trending', 'motivation'];
-            const randomType = viralTypes[Math.floor(Math.random() * viralTypes.length)];
-            document.getElementById('viralType').value = randomType;
-            
-            // Add visual feedback
-            showStatus(`🎲 Generating random ${randomType.replace('_', ' ')} content...`, 'loading');
-            
-            await generateImage();
-        }
-
-        function showExamples() {
-            const examplesSection = document.getElementById('examplesSection');
-            if (examplesSection.style.display === 'none') {
-                examplesSection.style.display = 'block';
-            } else {
-                hideExamples();
-            }
-        }
-
-        function hideExamples() {
-            document.getElementById('examplesSection').style.display = 'none';
-        }
-
-        function loadExample(type) {
-            hideExamples();
-            
-            switch(type) {
-                case 'hugot':
-                    selectContentType('viral');
-                    document.getElementById('viralType').value = 'hugot_tagalog';
-                    break;
-                case 'riddle':
-                    selectContentType('viral');
-                    document.getElementById('viralType').value = 'riddle';
-                    break;
-                case 'motivation':
-                    selectContentType('viral');
-                    document.getElementById('viralType').value = 'motivation';
-                    break;
-                case 'custom':
-                    selectContentType('generic');
-                    document.getElementById('brandType').value = 'syntyx';
-                    document.getElementById('templateType').value = 'boxed';
-                    document.getElementById('customText').value = 'AI is transforming how businesses operate. Stay ahead of the curve with intelligent automation.';
-                    break;
-            }
-            
-            setTimeout(() => {
-                generateImage();
-            }, 500);
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            selectContentType('viral');
-            showStatus('🚀 Image Generator Studio loaded and ready!', 'success');
-        });
-
-        // Additional API functions
-        async function loadTrendingSuggestions() {
-            try {
-                const response = await fetch('/trending-suggestions');
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('📈 Trending suggestions loaded:', data.suggestions);
-                    return data.suggestions;
-                } else {
-                    console.error('Failed to load trending suggestions');
-                    return [];
-                }
-            } catch (error) {
-                console.error('Error loading trending suggestions:', error);
-                return [];
-            }
-        }
-
-        async function batchGenerate(count = 3) {
-            showStatus(`🚀 Generating ${count} random viral images...`, 'loading');
-            
-            try {
-                const response = await fetch('/batch-generate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        count: count,
-                        contentType: 'viral'
-                    })
-                });
-
-                if (response.ok) {
-                    const result = await response.json();
-                    showStatus(`✅ Generated ${count} images successfully!`, 'success');
-                    // Optionally reload the images list
-                    await loadRecentImages();
-                } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Batch generation failed');
-                }
-            } catch (error) {
-                console.error('Error in batch generation:', error);
-                showStatus(`❌ Batch generation failed: ${error.message}`, 'error');
-            }
-        }
-
-        async function loadRecentImages() {
-            try {
-                const response = await fetch('/list-images');
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('📸 Recent images:', data.images);
-                    return data.images;
-                } else {
-                    console.error('Failed to load images');
-                    return [];
-                }
-            } catch (error) {
-                console.error('Error loading images:', error);
-                return [];
-            }
-        }
-
-        // Health check
-        async function checkServerHealth() {
-            try {
-                const response = await fetch('/health');
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('🟢 Server healthy:', data);
-                    return true;
-                } else {
-                    console.log('🔴 Server unhealthy');
-                    return false;
-                }
-            } catch (error) {
-                console.log('🔴 Server unavailable:', error.message);
-                return false;
-            }
-        }
-
-        // Initialize with server health check
-        document.addEventListener('DOMContentLoaded', async function() {
-            selectContentType('viral');
-            
-            const serverHealthy = await checkServerHealth();
-            if (serverHealthy) {
-                showStatus('🚀 Image Generator Studio connected and ready!', 'success');
-                // Optionally load trending suggestions
-                await loadTrendingSuggestions();
-            } else {
-                showStatus('❌ Server unavailable. Please start the backend server.', 'error');
-            }
-        });
     </script>
 </body>
 </html>

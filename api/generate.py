@@ -368,22 +368,7 @@ class handler(BaseHTTPRequestHandler):
                 draw.text((simple_x, simple_y), line, font=font, fill=(255, 255, 255))
                 logger.info(f"Used fallback positioning for line {i}")
         
-        # Add subtle branding
-        try:
-            brand_font_size = max(16, width // 80)
-            if font:
-                brand_font = ImageFont.truetype(font.path if hasattr(font, 'path') else None, brand_font_size)
-            else:
-                brand_font = None
-            
-            brand_text = "viralstudio.ai ✨"
-            brand_x = width - 200
-            brand_y = height - 30
-            
-            # Draw subtle brand text - more visible on black background
-            draw.text((brand_x, brand_y), brand_text, font=brand_font, fill=(180, 180, 180, 180))
-        except Exception as e:
-            logger.debug(f"Could not add branding: {e}")
+        # No watermark - clean images only
         
         # Convert to base64 with optimization
         buffer = io.BytesIO()

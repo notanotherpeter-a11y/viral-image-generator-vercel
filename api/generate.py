@@ -308,31 +308,8 @@ class handler(BaseHTTPRequestHandler):
         width, height = format_dimensions.get(format_type, (1080, 1080))
         logger.info(f"Image dimensions: {width}x{height}")
         
-        # Create more vibrant gradient background for better viral appeal
-        image = Image.new('RGB', (width, height))
-        
-        # Create gradient background with more variation
-        for y in range(height):
-            # Create a more dynamic gradient
-            ratio = y / height
-            # Orange to deep red gradient with some variation
-            r = int(255 * (1 - ratio * 0.4))     # 255 to ~153
-            g = int(107 + (ratio * 80))          # 107 to ~187  
-            b = int(53 * (1 - ratio * 0.6))     # 53 to ~21
-            
-            # Add some horizontal variation for texture
-            for x in range(width):
-                x_ratio = x / width
-                r_adj = r + int(10 * (x_ratio - 0.5))
-                g_adj = g + int(5 * (x_ratio - 0.5))
-                b_adj = b + int(3 * (x_ratio - 0.5))
-                
-                # Clamp values
-                r_final = max(0, min(255, r_adj))
-                g_final = max(0, min(255, g_adj))
-                b_final = max(0, min(255, b_adj))
-                
-                image.putpixel((x, y), (r_final, g_final, b_final))
+        # Create solid black background for maximum contrast
+        image = Image.new('RGB', (width, height), color=(0, 0, 0))  # Pure black background
         
         draw = ImageDraw.Draw(image)
         
@@ -367,17 +344,19 @@ class handler(BaseHTTPRequestHandler):
                 x = max(margin, (width - text_width) // 2)  # Center with minimum margin
                 y = start_y + i * line_height
                 
-                # Enhanced shadow with blur effect (multiple shadow layers)
-                shadow_offset = 4
-                shadow_color = (0, 0, 0, 200)
+                # Add subtle glow effect for better readability on black
+                glow_intensity = 3
+                # Draw white glow layers behind text
+                for glow in range(glow_intensity, 0, -1):
+                    glow_alpha = 60 // glow  # Stronger glow closer to text
+                    for dx in range(-glow, glow + 1):
+                        for dy in range(-glow, glow + 1):
+                            if dx != 0 or dy != 0:  # Skip center
+                                draw.text((x + dx, y + dy), line, font=font, fill=(255, 255, 255, glow_alpha))
                 
-                # Multiple shadow layers for depth
-                for offset in range(1, shadow_offset + 1):
-                    alpha = 200 // offset  # Fade shadow layers
-                    draw.text((x + offset, y + offset), line, font=font, fill=(0, 0, 0, alpha))
-                
-                # Draw main text in bright white
-                draw.text((x, y), line, font=font, fill=(255, 255, 255))
+                # Draw main text in soft white for easier reading
+                # Using off-white (245, 245, 245) instead of pure white (255, 255, 255)
+                draw.text((x, y), line, font=font, fill=(245, 245, 245))
                 
                 logger.info(f"Drew line {i+1}: '{line[:30]}...' at ({x}, {y})")
                 
@@ -401,8 +380,8 @@ class handler(BaseHTTPRequestHandler):
             brand_x = width - 200
             brand_y = height - 30
             
-            # Draw subtle brand text
-            draw.text((brand_x, brand_y), brand_text, font=brand_font, fill=(255, 255, 255, 120))
+            # Draw subtle brand text - more visible on black background
+            draw.text((brand_x, brand_y), brand_text, font=brand_font, fill=(180, 180, 180, 180))
         except Exception as e:
             logger.debug(f"Could not add branding: {e}")
         

@@ -101,9 +101,10 @@ class handler(BaseHTTPRequestHandler):
         
         # Try to use a better font, fallback to default
         try:
-            font_size = min(width, height) // 8  # Much larger font for social media impact!
+            font_size = min(width, height) // 6  # MASSIVE font for viral social media impact!
             font = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", font_size)
         except:
+            font_size = 80  # Large fallback if system font fails
             font = ImageFont.load_default()
         
         # Add text with word wrapping
@@ -113,7 +114,7 @@ class handler(BaseHTTPRequestHandler):
         
         for word in words:
             test_line = ' '.join(current_line + [word])
-            if draw.textbbox((0, 0), test_line, font=font)[2] < width - 100:
+            if draw.textbbox((0, 0), test_line, font=font)[2] < width - 200:  # More margin for bigger font
                 current_line.append(word)
             else:
                 if current_line:

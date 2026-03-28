@@ -99,29 +99,78 @@ class handler(BaseHTTPRequestHandler):
         image = Image.new('RGB', (width, height), color='#FF6B35')
         draw = ImageDraw.Draw(image)
         
-        # Try to use a better font, fallback to default
+        # FORCE massive font size - no more tiny text!
+        font_size = 200  # FIXED 200px font regardless of image size
+        print(f"DEBUG: FORCED font size: {font_size}px for {width}x{height} image")
+        
         try:
-            font_size = min(width, height) // 4  # EXTREME font for maximum viral impact!
-            print(f"DEBUG: Font size calculated: {font_size}px for {width}x{height} image")
-            font = ImageFont.truetype("/System/Library/Fonts/Arial.ttf", font_size)
+            # Try multiple font paths
+            font_paths = [
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+                "/usr/share/fonts/TTF/arial.ttf", 
+                "/System/Library/Fonts/Arial.ttf",
+                "/System/Library/Fonts/Helvetica.ttc"
+            ]
+            
+            font = None
+            for path in font_paths:
+                try:
+                    font = ImageFont.truetype(path, font_size)
+                    print(f"DEBUG: Successfully loaded font: {path}")
+                    break
+                except:
+                    continue
+                    
+            if font is None:
+                raise Exception("No system fonts found")
+                
         except Exception as e:
-            font_size = 120  # Much larger fallback
-            print(f"DEBUG: Using fallback font size: {font_size}px (error: {e})")
-            font = ImageFont.load_default()
+            print(f"DEBUG: All system fonts failed, using load_default (error: {e})")
+            # Create a much larger default-style font
+            try:
+                font = ImageFont.load_default()
+                font_size = 50  # Smaller but still visible with default font
+                print(f"DEBUG: Using default font with size: {font_size}")
+            except:
+                # Last resort
+                font = None
+                font_size = 40
         
         # Add text with word wrapping
         words = selected_text.split()
         lines = []
         current_line = []
         
-        for word in words:
-            test_line = ' '.join(current_line + [word])
-            if draw.textbbox((0, 0), test_line, font=font)[2] < width - 200:  # More margin for bigger font
-                current_line.append(word)
-            else:
-                if current_line:
+        # Handle text wrapping with massive font
+        max_width = width - 100  # Generous margins
+        
+        if font:
+            for word in words:
+                test_line = ' '.join(current_line + [word])
+                try:
+                    text_width = draw.textbbox((0, 0), test_line, font=font)[2]
+                    if text_width < max_width:
+                        current_line.append(word)
+                    else:
+                        if current_line:
+                            lines.append(' '.join(current_line))
+                        current_line = [word]
+                except:
+                    # Fallback if textbbox fails
+                    if len(test_line) * font_size * 0.6 < max_width:  # Rough estimate
+                        current_line.append(word)
+                    else:
+                        if current_line:
+                            lines.append(' '.join(current_line))
+                        current_line = [word]
+        else:
+            # No font available, just split by word count
+            for i, word in enumerate(words):
+                if i % 3 == 0 and current_line:  # Every 3 words
                     lines.append(' '.join(current_line))
-                current_line = [word]
+                    current_line = [word]
+                else:
+                    current_line.append(word)
         
         if current_line:
             lines.append(' '.join(current_line))
@@ -131,17 +180,32 @@ class handler(BaseHTTPRequestHandler):
         total_height = len(lines) * line_height
         start_y = (height - total_height) // 2
         
-        # Draw text
+        # Draw text with better error handling
         for i, line in enumerate(lines):
-            bbox = draw.textbbox((0, 0), line, font=font)
-            text_width = bbox[2] - bbox[0]
-            x = (width - text_width) // 2
-            y = start_y + i * line_height
-            
-            # Add text shadow
-            draw.text((x+2, y+2), line, font=font, fill='#000000')
-            # Add main text
-            draw.text((x, y), line, font=font, fill='#FFFFFF')
+            try:
+                if font:
+                    bbox = draw.textbbox((0, 0), line, font=font)
+                    text_width = bbox[2] - bbox[0]
+                else:
+                    # Rough estimate if no font
+                    text_width = len(line) * (font_size * 0.6)
+                    
+                x = (width - text_width) // 2
+                y = start_y + i * line_height
+                
+                # Add text shadow for better visibility
+                draw.text((x+3, y+3), line, font=font, fill='#000000')
+                # Add main text in white
+                draw.text((x, y), line, font=font, fill='#FFFFFF')
+                print(f"DEBUG: Drew line {i}: '{line}' at position ({x}, {y})")
+                
+            except Exception as e:
+                print(f"DEBUG: Error drawing line {i}: {e}")
+                # Fallback drawing without advanced positioning
+                simple_x = 50  
+                simple_y = 50 + i * (font_size + 20)
+                draw.text((simple_x, simple_y), line, fill='#FFFFFF')
+                print(f"DEBUG: Used fallback drawing for line {i}")
         
         # Convert to base64
         buffer = io.BytesIO()

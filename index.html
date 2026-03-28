@@ -491,6 +491,9 @@
                     const viralType = document.getElementById('viralType').value;
                     const format = document.getElementById('formatType').value;
                     
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 30000);
+                    
                     response = await fetch('/api/generate', {
                         method: 'POST',
                         headers: {
@@ -499,8 +502,11 @@
                         body: JSON.stringify({
                             type: viralType,
                             format: format
-                        })
+                        }),
+                        signal: controller.signal
                     });
+                    
+                    clearTimeout(timeoutId);
                 } else {
                     const brand = document.getElementById('brandType').value;
                     const template = document.getElementById('templateType').value;
@@ -529,22 +535,45 @@
                     });
                 }
 
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
                 if (response.ok) {
                     const result = await response.json();
-                    if (result.success) {
+                    console.log('API response:', result);
+                    
+                    if (result.success && result.imageData) {
                         showPreview(result.imageData, true);
                         showStatus('✅ Image generated successfully!', 'success');
                     } else {
-                        throw new Error(result.error || 'Generation failed');
+                        throw new Error(result.error || 'No image data received');
                     }
                 } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Generation failed');
+                    let errorMessage = `Server error (${response.status})`;
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.error || errorMessage;
+                    } catch (e) {
+                        errorMessage += ' - Could not parse error response';
+                    }
+                    throw new Error(errorMessage);
                 }
                 
             } catch (error) {
                 console.error('Error generating image:', error);
-                showStatus(`❌ Failed to generate image: ${error.message}`, 'error');
+                let errorMessage = 'Unknown error occurred';
+                
+                if (error.name === 'AbortError') {
+                    errorMessage = 'Request timed out after 30 seconds. Please try again.';
+                } else if (error.message.includes('fetch')) {
+                    errorMessage = 'Server unavailable. Please wait a moment and try again.';
+                } else if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Network connection issue. Check your connection and try again.';
+                } else {
+                    errorMessage = error.message;
+                }
+                
+                showStatus(`❌ ${errorMessage}`, 'error');
             } finally {
                 generateBtn.disabled = false;
                 generateBtn.textContent = '✨ Generate Image';
